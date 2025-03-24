@@ -1,0 +1,12 @@
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Project.Model
+{
+    public class Chips
+    {
+        [Required]
+        public List<string> color { get; set; }
+        [Required]
+        public List<int> denominations { get; set; }
+    }
+}
