@@ -1,0 +1,23 @@
+﻿using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Project.Model;
+namespace Project.Service
+{
+    public class AreaService
+    {
+        private readonly IMongoCollection<Area> _service;
+        public AreaService(IOptions<AreaDB> connection)
+        {
+            var mongoclient = new MongoClient(connection.Value.ConnectionString);
+            var dbname = mongoclient.GetDatabase(connection.Value.DataBaseName);
+            _service = dbname.GetCollection<Area>(connection.Value.CollectionName);
+        }
+        public async Task AddArea(Area area) => await _service.InsertOneAsync(area);
+        public async Task<List<Area>> GetAllArea() => await _service.Find(_ => true).ToListAsync();
+        public async Task<Area> GetAreaByID(string id) => await _service.Find(x => x._id == id).FirstOrDefaultAsync();
+        public async Task<List<Area>> GetAreaByCompanyID(string cid) => await _service.Find(x => x.Sub_company_id == cid).ToListAsync();//may have many area in this company
+        public async Task<Area> GetAreaByName(string name) => await _service.Find(x => x.Name == name).FirstOrDefaultAsync();
+        public async Task UpdateArea(string id, Area a) => await _service.ReplaceOneAsync(x => x._id == id, a);
+        public async Task DeleteArea(string id) => await _service.DeleteOneAsync(x => x._id == id);
+    }
+}

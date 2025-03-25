@@ -14,13 +14,15 @@ namespace Project.Service
             _service = dbname.GetCollection<Gaming_Tables>(gamingdb.Value.CollectionName);
         }
         public async Task<List<Gaming_Tables>> GetAllTable() => await _service.Find(_ => true).ToListAsync();
-        public async Task UpdateTable(string id, Gaming_Tables t) => await _service.ReplaceOneAsync(x => x.Table_number == id, t);
+        public async Task<Gaming_Tables> GetTable(string id) => await _service.Find(x => x._id == id).FirstOrDefaultAsync();
+        public async Task UpdateTable(string id, Gaming_Tables t) => await _service.ReplaceOneAsync(x => x._id == id, t);
         public async Task UpdateTableStatus(string id, string status) 
         {
-            var table = await _service.Find(x => x.Table_number == id).FirstOrDefaultAsync();
+            var table = await _service.Find(x => x._id == id).FirstOrDefaultAsync();
             table.Status = status;
-            await _service.ReplaceOneAsync(x => x.Table_number == id, table);
+            await _service.ReplaceOneAsync(x => x._id == id, table);
         }
-        public async Task DeleteTable(string id) => await _service.DeleteOneAsync(x => x.Table_number == id);
+        public async Task DeleteTable(string id) => await _service.DeleteOneAsync(x => x._id == id);
+        public async Task CreateTable(Gaming_Tables table) => await _service.InsertOneAsync(table);
     }
 }
