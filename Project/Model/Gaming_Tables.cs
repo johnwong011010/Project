@@ -10,35 +10,35 @@ namespace Project.Model
         [BsonRepresentation(BsonType.ObjectId)]
         public string? _id { get; set; }
         [DisplayName("Pit ID")]
-        [BsonId]
+        [BsonElement("pit_id")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Pit_id { get; set; }
         [DisplayName("Sub company ID")]
-        [BsonId]
+        [BsonElement("sub_company_id")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? sub_company_id { get; set; }
         [DisplayName("Table Number")]
         [Required]
-        public string? Table_number { get; set; }
+        public string? table_number { get; set; }
         [DisplayName("Game Type")]
         [Required]
-        public string? Game_type { get; set; }
+        public string? game_type { get; set; }
         [DisplayName("Minimum Bet")]
         [Required]
-        public int? Min_bet { get; set; }
+        public int? min_bet { get; set; }
         [DisplayName("Maximum Bet")]
         [Required]
-        public int? Max_bet { get; set; }
+        public int? max_bet { get; set; }
         [DisplayName("Chipset Configuration")]
         [Required]
-        public Chips chipset { get; set; }
+        public Chips? chipset_configuration { get; set; }
         [DisplayName("Status")]
         [Required]
-        public string? Status { get; set; }
+        public string? status { get; set; }
         [DisplayName("Create Time")]
         [Required]
-        public DateTime? Create_time { get; set; }
+        public DateTime? created_at { get; set; }
         [DisplayName("Update Time")]
-        public DateTime? Update_time { get; set; }
+        public DateTime? updated_at { get; set; }
     }
 }

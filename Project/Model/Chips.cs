@@ -5,7 +5,7 @@ namespace Project.Model
     public class Chips
     {
         [Required]
-        public List<string> color { get; set; }
+        public List<string> chip_types { get; set; }
         [Required]
         public List<int> denominations { get; set; }
     }

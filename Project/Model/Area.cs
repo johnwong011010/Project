@@ -10,18 +10,18 @@ namespace Project.Model
         [BsonRepresentation(BsonType.ObjectId)]
         public string? _id { get; set; }
         [DisplayName("Sub-Company ID")]
-        [BsonId]
+        [BsonElement("sub_company_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? Sub_company_id { get; set; }
+        public string? sub_company_id { get; set; }
         [DisplayName("Name")]
         [Required]
-        public string? Name { get; set; }
+        public string? name { get; set; }
         [DisplayName("Description")]
-        public string? Description { get; set; }
+        public string? description { get; set; }
         [DisplayName("Create Time")]
         [Required]
-        public DateTime? Create_Time { get; set; }
+        public DateTime? created_at { get; set; }
         [DisplayName("Update Time")]
-        public DateTime? Update_Time { get; set; }
+        public DateTime? updated_at { get; set; }
     }
 }

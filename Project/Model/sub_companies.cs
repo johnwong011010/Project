@@ -11,13 +11,13 @@ namespace Project.Model
         public string? _id { get; set; }
         [DisplayName("Name")]
         [Required]
-        public string? Name { get; set; }
+        public string? name { get; set; }
         [DisplayName("Description")]
-        public string? Description { get; set; }
+        public string? description { get; set; }
         [DisplayName("Creat Time")]
         [Required]
-        public DateTime? CreateTime { get; set; }
+        public DateTime? created_at { get; set; }
         [DisplayName("Update Time")]
-        public DateTime? UpdateTime { get; set; }
+        public DateTime? updated_at { get; set; }
     }
 }

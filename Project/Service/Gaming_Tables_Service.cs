@@ -15,14 +15,29 @@ namespace Project.Service
         }
         public async Task<List<Gaming_Tables>> GetAllTable() => await _service.Find(_ => true).ToListAsync();
         public async Task<Gaming_Tables> GetTable(string id) => await _service.Find(x => x._id == id).FirstOrDefaultAsync();
-        public async Task UpdateTable(string id, Gaming_Tables t) => await _service.ReplaceOneAsync(x => x._id == id, t);
+        public async Task UpdateTable(string id, Gaming_Tables t)
+        {
+            var table = await _service.Find(x => x._id == id).FirstOrDefaultAsync();
+            t.created_at = table.created_at;
+            t.updated_at = DateTime.UtcNow;
+            //need to write this operation to operation log
+            await _service.ReplaceOneAsync(x => x._id == id, t);
+        }
         public async Task UpdateTableStatus(string id, string status) 
         {
             var table = await _service.Find(x => x._id == id).FirstOrDefaultAsync();
-            table.Status = status;
+            table.status = status;
+            table.updated_at = DateTime.UtcNow;
+            //need to write this operation to operation log
             await _service.ReplaceOneAsync(x => x._id == id, table);
         }
         public async Task DeleteTable(string id) => await _service.DeleteOneAsync(x => x._id == id);
-        public async Task CreateTable(Gaming_Tables table) => await _service.InsertOneAsync(table);
+        public async Task CreateTable(Gaming_Tables table) 
+        {
+            table.created_at = DateTime.UtcNow;
+            table.updated_at = DateTime.UtcNow;
+            //need to write this operation to operation log
+            await _service.InsertOneAsync(table);
+        }
     }
 }

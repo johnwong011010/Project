@@ -10,18 +10,18 @@ namespace Project.Model
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? _id { get; set; }
-        [BsonId]
+        [BsonElement("Gaming_Table_Id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? Gaming_Table_Id { get; set; }
+        public string? gaming_table_id { get; set; }
         [DisplayName("Operation Type")]
         [Required]
-        public string? Operation_Type { get; set; }
+        public string? operation_type { get; set; }
         [DisplayName("Performed User")]
         [Required]
-        public string? Performed_user { get; set; }
+        public string? performed_by { get; set; }
         [DisplayName("Operation Timestamp")]
         [Required]
-        public DateTime? op_timestamp { get; set; }
+        public DateTime? operation_timestamp { get; set; }
         [DisplayName("Details")]
         [Required]
         public string? details { get; set; }
