@@ -11,7 +11,7 @@ namespace Project.Model
         [BsonRepresentation(BsonType.ObjectId)]
         public string? _id { get; set; }
         [DisplayName("Zone ID")]
-        [BsonElement("Zone_id")]
+        [BsonElement("zone_id")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? zone_id { get; set; }
         [DisplayName("Name")]

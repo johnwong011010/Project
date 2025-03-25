@@ -11,8 +11,7 @@ namespace Project.Controllers
     {
         private readonly Gaming_Tables_Service _service;
         public GamingTablesController(Gaming_Tables_Service service) => _service = service;
-        [HttpGet
-            ]
+        [HttpGet]
         public async Task<List<Gaming_Tables>> GetTable() => await _service.GetAllTable();
         [HttpGet("/api/gamingtable/{id:length(24)}")]
         public async Task<Gaming_Tables> GetTable(string id) => await _service.GetTable(id);

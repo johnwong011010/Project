@@ -9,6 +9,7 @@ builder.Services.Configure<EmployeeDB>(builder.Configuration.GetSection("Employe
 builder.Services.Configure<Gaming_TablesDB>(builder.Configuration.GetSection("GamingTableDatabase"));
 builder.Services.AddSingleton<Gaming_Tables_Service>();
 builder.Services.Configure<operationDB>(builder.Configuration.GetSection("OperationDatabase"));
+builder.Services.AddSingleton<OperationLogService>();
 builder.Services.Configure<PitDB>(builder.Configuration.GetSection("PitDatabase"));
 builder.Services.AddSingleton<Pit_Service>();
 builder.Services.Configure<sub_companiesDB>(builder.Configuration.GetSection("SubCompanyDatabase"));

@@ -10,7 +10,7 @@ namespace Project.Model
         [BsonRepresentation(BsonType.ObjectId)]
         public string? _id { get; set; }
         [DisplayName("Area ID")]
-        [BsonElement("Area_id")]
+        [BsonElement("area_id")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? area_id { get; set; }
         [DisplayName("Name")]
@@ -22,6 +22,6 @@ namespace Project.Model
         [Required]
         public DateTime? created_at { get; set; }
         [DisplayName("Update Time")]
-        public DateTime? update_at { get; set; }
+        public DateTime? updated_at { get; set; }
     }
 }

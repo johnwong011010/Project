@@ -10,7 +10,7 @@ namespace Project.Model
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? _id { get; set; }
-        [BsonElement("Gaming_Table_Id")]
+        [BsonElement("gaming_table_id")]
         [BsonRepresentation(BsonType.ObjectId)]
         public string? gaming_table_id { get; set; }
         [DisplayName("Operation Type")]
