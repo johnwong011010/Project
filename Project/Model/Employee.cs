@@ -21,6 +21,6 @@ namespace Project.Model
         [Required]
         public string? Permission { get; set; }
         [Required]
-        public bool Status { get; set; }
+        public string? Status { get; set; }
     }
 }
