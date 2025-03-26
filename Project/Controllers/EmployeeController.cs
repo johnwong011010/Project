@@ -9,15 +9,27 @@ namespace Project.Controllers
     public class EmployeeController : Controller
     {
         private readonly EmployeeService _service;
-        public EmployeeController(EmployeeService service) => _service = service;
+        private readonly JwtService _jwtService;
+        public EmployeeController(EmployeeService service,JwtService jwtService) 
+        {
+            _service = service;
+            _jwtService = jwtService;
+        }
         [HttpGet]
 
         public async Task<List<Employee>> GetAllEmployee() => await _service.GetAllEmployee();
-        [HttpGet]
+        [HttpGet("/api/[controller]/employee")]
         public async Task<Employee> GetEmployee(string role, string name) => await _service.GetEmployeeByRole(role, name);
-        [HttpPost]
+        [HttpPost("/api/[controller]/employee")]
         public async Task AddEmployee(Employee emp) => await _service.AddEmployee(emp);
-        [HttpPut]//change the employee status etc. active inactive
+        [HttpPut("/api/[controller]/{id:length(24)}/status")]//change the employee status etc. active inactive
         public async Task ChnageEmployeeStatus(string id, string status) => await _service.ChangeEmployeeStatus(id, status);
+        [HttpPost("/api/[controller]/login")]
+        public async Task<ActionResult<EmployeeLoginModel>> Login(EmployeeLoginModel loginModel)
+        {
+            var result = await _jwtService.EmployeeLogin(loginModel);
+            Response.Headers.Add("Authorization", "Bearer "+ result.Token);
+            return Ok(result);
+        }
     }
 }

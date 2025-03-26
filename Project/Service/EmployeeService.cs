@@ -8,7 +8,7 @@ namespace Project.Service
         private readonly IMongoCollection<Employee> _service;
         public EmployeeService(IOptions<EmployeeDB> connection)
         {
-            var mongoclient = new MongoClient(connection.Value.DataBaseName);
+            var mongoclient = new MongoClient(connection.Value.ConnectionString);
             var dbname = mongoclient.GetDatabase(connection.Value.DataBaseName);
             _service = dbname.GetCollection<Employee>(connection.Value.CollectionName);
         }
