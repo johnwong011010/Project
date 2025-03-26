@@ -7,6 +7,8 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Microsoft.Extensions.Options;
+using System.Diagnostics;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 namespace Project.Service
 {
@@ -65,6 +67,58 @@ namespace Project.Service
                 signingCredentials: credentials
             );
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+        //先驗證傳入的token是否合法
+        //再來驗證該token的加密演算法
+        //然後檢查payload的資料
+        //傳回一個新的token
+        private async Task<EmployeeLoginModel> RefreshToekn(EmployeeLoginModel model)
+        {
+            JwtSecurityTokenHandler tokenhandler = new JwtSecurityTokenHandler();
+            var jwtsetting = _configuartion.GetSection("Jwt");
+            try
+            {
+                if (model.Detail == null)
+                {
+                    return null;
+                }
+                var validsetting = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = false,
+                    ValidateLifetime = true,//active the jwt lifetime
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtsetting["Jwt:Issuer"],//config the issuser
+                    //ValidAudience = builder.Configuration["Jwt:Audience"],//config the audience
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtsetting["Jwt:Key"]))
+                };
+                ClaimsPrincipal tokenverify = tokenhandler.ValidateToken(model.Token, validsetting, out SecurityToken securityToken);
+                if (securityToken is JwtSecurityToken jwtSecurityToken)
+                {
+                    var result = jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase);
+                    if (result == false)
+                    {
+                        return null;
+                    }
+                }
+                string acc = tokenverify.Claims.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;//取得jwt中account的值
+                string pm = tokenverify.Claims.SingleOrDefault(x => x.Type == ClaimTypes.UserData).Value;
+                var emp = await _service.Find(x => x.Account == model.Account).FirstOrDefaultAsync();
+                if (acc.Equals(emp.Account)&&pm.Equals(emp.Permission))
+                {
+                    var newToken = GenerateToken(emp);
+                    model.Token = newToken;
+                    return model;
+                }
+                else
+                {
+                    return null;
+                }
+            }
+            catch(Exception e)
+            {
+                return new EmployeeLoginModel { Detail = e.Message };
+            }
         }
     }
 }

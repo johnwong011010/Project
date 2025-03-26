@@ -21,6 +21,7 @@ builder.Services.Configure<sub_companiesDB>(builder.Configuration.GetSection("Su
 builder.Services.AddSingleton<Sub_Company_Service>();
 builder.Services.Configure<ZoneDB>(builder.Configuration.GetSection("ZoneDatabase"));
 builder.Services.AddSingleton<Zone_Service>();
+var jwtsetting = builder.Configuration.GetSection("Jwt");//get Jwt setting
 
 //set up the authentication is using json web token
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
