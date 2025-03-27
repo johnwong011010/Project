@@ -9,19 +9,22 @@ using MongoDB.Driver;
 using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http.HttpResults;
+using System.Security.Cryptography;
 
 namespace Project.Service
 {
     public class JwtService
     {
         private readonly IConfiguration _configuartion;
+        private readonly IRefreshTokenRepository _repository;
         private readonly IMongoCollection<Employee> _service;
-        public JwtService(IConfiguration configuartion,IOptions<EmployeeDB> connection) 
+        public JwtService(IConfiguration configuartion,IOptions<EmployeeDB> connection,IRefreshTokenRepository repository) 
         {
             var mongoclient = new MongoClient(connection.Value.ConnectionString);
             var dbname = mongoclient.GetDatabase(connection.Value.DataBaseName);
             _service = dbname.GetCollection<Employee>(connection.Value.CollectionName);
             _configuartion = configuartion;
+            _repository = repository;
         }
         public async Task<EmployeeLoginModel> EmployeeLogin(EmployeeLoginModel model)
         {
@@ -35,8 +38,12 @@ namespace Project.Service
             //bool checkPassword = BCrypt.Net.BCrypt.Verify(model.Password, employee.Password);
             if (model.Password.Equals(employee.Password))
             {
+                var refrehtoken = GenerateRefreshToken(model.Account, model.Ipaddress);
+                employee.refreshToken = refrehtoken;
+                await _service.ReplaceOneAsync(x => x._id == employee._id, employee);//store the refresh token
                 result.Detail = "Login success";
                 result.Token = GenerateToken(employee);
+                result.RefreshToken = refrehtoken;
                 return result;
             }
             else
@@ -63,62 +70,65 @@ namespace Project.Service
                 _configuartion["Jwt:Issuer"],
                 _configuartion["Jwt:Audience"],
                 claim,
-                expires: DateTime.UtcNow.AddMinutes(10),
+                expires: DateTime.UtcNow.AddMinutes(10),//該token的有效時間
                 signingCredentials: credentials
             );
-            return new JwtSecurityTokenHandler().WriteToken(token);
+            var accestoken = new JwtSecurityTokenHandler().WriteToken(token);
+            return accestoken;//該Token只是允許短時間訪問服務的token
         }
-        //先驗證傳入的token是否合法
+        public RefreshToken GenerateRefreshToken(string useracc,string userIP)
+        {
+            var refreshToken = new RefreshToken
+            {
+                Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
+                Expires = DateTime.UtcNow.AddDays(7),
+                Create = DateTime.UtcNow,
+                CreatedIP = userIP,
+                UserAcc = useracc
+            };
+            return refreshToken;
+        }
+        //先驗證傳入的token是否合法和refresh token是否過期和是否被使用過
         //再來驗證該token的加密演算法
         //然後檢查payload的資料
         //傳回一個新的token
-        private async Task<EmployeeLoginModel> RefreshToekn(EmployeeLoginModel model)
+        public async Task<AuthResponse> RefreshToken(string token,string refreshtoken,string ipaddress)
         {
-            JwtSecurityTokenHandler tokenhandler = new JwtSecurityTokenHandler();
-            var jwtsetting = _configuartion.GetSection("Jwt");
-            try
+            var principal = GetClaimsPrincipalFromExpiredToken(token);
+            var useracc = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+            var storedRefreshToken = await _repository.GetByToken(refreshtoken);//get the refresh token from db
+            if (storedRefreshToken == null || storedRefreshToken.UserAcc != useracc || 
+                storedRefreshToken.Expires< DateTime.UtcNow || storedRefreshToken.Revoked != null)
             {
-                if (model.Detail == null)
-                {
-                    return null;
-                }
-                var validsetting = new TokenValidationParameters
-                {
-                    ValidateIssuer = true,
-                    ValidateAudience = false,
-                    ValidateLifetime = true,//active the jwt lifetime
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtsetting["Jwt:Issuer"],//config the issuser
-                    //ValidAudience = builder.Configuration["Jwt:Audience"],//config the audience
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtsetting["Jwt:Key"]))
-                };
-                ClaimsPrincipal tokenverify = tokenhandler.ValidateToken(model.Token, validsetting, out SecurityToken securityToken);
-                if (securityToken is JwtSecurityToken jwtSecurityToken)
-                {
-                    var result = jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase);
-                    if (result == false)
-                    {
-                        return null;
-                    }
-                }
-                string acc = tokenverify.Claims.SingleOrDefault(x => x.Type == ClaimTypes.NameIdentifier).Value;//取得jwt中account的值
-                string pm = tokenverify.Claims.SingleOrDefault(x => x.Type == ClaimTypes.UserData).Value;
-                var emp = await _service.Find(x => x.Account == model.Account).FirstOrDefaultAsync();
-                if (acc.Equals(emp.Account)&&pm.Equals(emp.Permission))
-                {
-                    var newToken = GenerateToken(emp);
-                    model.Token = newToken;
-                    return model;
-                }
-                else
-                {
-                    return null;
-                }
+                throw new SecurityTokenException("Invalid refresh token");
             }
-            catch(Exception e)
+            var emp = await _service.Find(x => x.Name == principal.FindFirstValue(ClaimTypes.Name) && 
+            x.Role == principal.FindFirstValue(ClaimTypes.Role)).FirstOrDefaultAsync();
+            var newToken = GenerateToken(emp);
+            var newRefreshToken = GenerateRefreshToken(useracc, ipaddress);
+            await _repository.Update(emp._id,storedRefreshToken);
+            await _repository.Add(emp._id,newRefreshToken);
+            return new AuthResponse
             {
-                return new EmployeeLoginModel { Detail = e.Message };
-            }
+                AccessToken = newToken,
+                RefreshToken = newRefreshToken.Token
+            };
+
+        }
+        private ClaimsPrincipal GetClaimsPrincipalFromExpiredToken(string token)//檢查access token有沒有遭到修改
+        {
+            var tokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateAudience = false,
+                ValidateIssuer = false,
+                ValidateIssuerSigningKey = true,
+                IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_configuartion["Jwt:Key"])),
+                ValidateLifetime = false // 故意關閉有效期驗證
+            };
+            var tokenhandler = new JwtSecurityTokenHandler();
+            var principal = tokenhandler.ValidateToken(token, tokenValidationParameters, out _);
+            return principal;//return an object 
         }
     }
 }
