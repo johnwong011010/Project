@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 using Project.Model;
 using Project.Service;
 
@@ -10,6 +11,7 @@ namespace Project.Controllers
     {
         private readonly EmployeeService _service;
         private readonly JwtService _jwtService;
+
         public EmployeeController(EmployeeService service,JwtService jwtService) 
         {
             _service = service;
@@ -32,9 +34,22 @@ namespace Project.Controllers
             return Ok(result);
         }
         [HttpPost("/api/[controller]/refresh")]
-        public async Task<ActionResult> Refresh(EmployeeLoginModel model)
+        public async Task<ActionResult> RefreshToken([FromBody] RefreshTokenRequset requset)
         {
-            EmployeeLoginModel el = await _jwtService.
+            try
+            {
+                var ipaddress = HttpContext.Connection.RemoteIpAddress?.ToString();//取得發起requset的ip地址
+                var response = await _jwtService.RefreshToken(
+                    requset.AccessToken,
+                    requset.RefreshToken,
+                    ipaddress
+                    );
+                return Ok(response);
+            }
+            catch (SecurityTokenException e)
+            {
+                return Unauthorized(new { message = e });
+            }
         }
     }
 }

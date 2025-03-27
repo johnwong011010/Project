@@ -22,5 +22,6 @@ namespace Project.Model
         public string? Permission { get; set; }
         [Required]
         public string? Status { get; set; }
+        public required RefreshToken refreshToken { get; set; }
     }
 }

@@ -7,11 +7,15 @@ namespace Project.Service
     public class Gaming_Tables_Service
     {
         private readonly IMongoCollection<Gaming_Tables> _service;
-        public Gaming_Tables_Service(IOptions<Gaming_TablesDB> gamingdb)
+        private readonly IMongoCollection<operation_logs> _Logservice;
+        public Gaming_Tables_Service(IOptions<Gaming_TablesDB> gamingdb, IOptions<operationDB> operationdb)
         {
             var mongoclient = new MongoClient(gamingdb.Value.ConnectionString);
             var dbname = mongoclient.GetDatabase(gamingdb.Value.DataBaseName);
             _service = dbname.GetCollection<Gaming_Tables>(gamingdb.Value.CollectionName);
+            var opclient = new MongoClient(operationdb.Value.ConnectionString);
+            var opdb = opclient.GetDatabase(operationdb.Value.DataBaseName);
+            _Logservice = opdb.GetCollection<operation_logs>(operationdb.Value.CollectionName);
         }
         public async Task<List<Gaming_Tables>> GetAllTable() => await _service.Find(_ => true).ToListAsync();
         public async Task<Gaming_Tables> GetTable(string id) => await _service.Find(x => x._id == id).FirstOrDefaultAsync();

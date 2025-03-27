@@ -11,6 +11,7 @@ builder.Services.AddSingleton<AreaService>();
 builder.Services.Configure<EmployeeDB>(builder.Configuration.GetSection("EmployeeDatabase"));
 builder.Services.AddSingleton<EmployeeService>();
 builder.Services.AddSingleton<JwtService>();
+builder.Services.AddSingleton<IRefreshTokenRepository, RefreshTokenRepositoryClass>();
 builder.Services.Configure<Gaming_TablesDB>(builder.Configuration.GetSection("GamingTableDatabase"));
 builder.Services.AddSingleton<Gaming_Tables_Service>();
 builder.Services.Configure<operationDB>(builder.Configuration.GetSection("OperationDatabase"));
