@@ -23,5 +23,7 @@ namespace Project.Model
         public DateTime? created_at { get; set; }
         [DisplayName("Update Time")]
         public DateTime? updated_at { get; set; }
+        [DisplayName("isDeleted")]
+        public string? isDeleted { get; set; }
     }
 }

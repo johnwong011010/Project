@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Http.HttpResults;
 using System.Security.Cryptography;
+using BCrypt.Net;
 
 namespace Project.Service
 {
@@ -35,8 +36,8 @@ namespace Project.Service
                 result.Detail = "Employee not found";
                 return result;
             }
-            //bool checkPassword = BCrypt.Net.BCrypt.Verify(model.Password, employee.Password);
-            if (model.Password.Equals(employee.Password))
+            bool checkPassword = BCrypt.Net.BCrypt.Verify(model.Password, employee.Password);
+            if (checkPassword)
             {
                 var refrehtoken = GenerateRefreshToken(model.Account, model.Ipaddress);
                 employee.refreshToken = refrehtoken;

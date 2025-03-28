@@ -2,6 +2,7 @@
 using Microsoft.IdentityModel.Tokens;
 using Project.Model;
 using Project.Service;
+using BCrypt.Net;
 
 namespace Project.Controllers
 {
@@ -23,7 +24,11 @@ namespace Project.Controllers
         [HttpGet("/api/[controller]/employee")]
         public async Task<Employee> GetEmployee(string role, string name) => await _service.GetEmployeeByRole(role, name);
         [HttpPost("/api/[controller]/employee")]
-        public async Task AddEmployee(Employee emp) => await _service.AddEmployee(emp);
+        public async Task AddEmployee(Employee emp)
+        {
+            emp.Password = BCrypt.Net.BCrypt.HashPassword(emp.Password, workFactor: 12);;
+            await _service.AddEmployee(emp);
+        }
         [HttpPut("/api/[controller]/{id:length(24)}/status")]//change the employee status etc. active inactive
         public async Task ChnageEmployeeStatus(string id, string status) => await _service.ChangeEmployeeStatus(id, status);
         [HttpPost("/api/[controller]/login")]

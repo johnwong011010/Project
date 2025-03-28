@@ -19,11 +19,13 @@ namespace Project.Service
         }
         public async Task<List<Gaming_Tables>> GetAllTable() => await _service.Find(_ => true).ToListAsync();
         public async Task<Gaming_Tables> GetTable(string id) => await _service.Find(x => x._id == id).FirstOrDefaultAsync();
+        public async Task<Gaming_Tables> getTable(string number) => await _service.Find(x => x.table_number == number).FirstOrDefaultAsync();
         public async Task UpdateTable(string id, Gaming_Tables t)
         {
             var table = await _service.Find(x => x._id == id).FirstOrDefaultAsync();
+            DateTime time = DateTime.UtcNow;
             t.created_at = table.created_at;
-            t.updated_at = DateTime.UtcNow;
+            t.updated_at = time;
             //need to write this operation to operation log
             await _service.ReplaceOneAsync(x => x._id == id, t);
         }
@@ -42,6 +44,7 @@ namespace Project.Service
             table.updated_at = DateTime.UtcNow;
             //need to write this operation to operation log
             await _service.InsertOneAsync(table);
+
         }
     }
 }

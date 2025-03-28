@@ -30,6 +30,6 @@ namespace Project.Controllers
             await _service.UpdateArea(id, a);
         }
         [HttpDelete("/api/Area/{id:length(24)}")]
-        public async Task DeleteArea(string id) => await _service.DeleteArea(id);
+        public async Task DeleteArea(string id) => await _service.DeleteArea(id);//need pay attend
     }
 }
