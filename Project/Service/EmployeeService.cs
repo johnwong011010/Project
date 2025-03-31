@@ -22,6 +22,8 @@ namespace Project.Service
             {
                 emp.Role = role;
             }
+            emp.Permission = permission;
+            await _service.ReplaceOneAsync(x => x.Employee_Id == id, emp);
         }
         public async Task ChangeEmployeeStatus(string id,string status)
         {
