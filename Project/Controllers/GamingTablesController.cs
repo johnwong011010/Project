@@ -54,8 +54,45 @@ namespace Project.Controllers
             await _Logservice.WriteLog(log);
         } 
         [HttpPatch("/api/gaming-tables/{id:length(24)}/status")]
-        public async Task UpdateTableStatus(string id, string status) => await _service.UpdateTableStatus(id, status);
+        public async Task UpdateTableStatus(string id, string status,string role,string name)
+        {
+            var table = await _service.GetTable(id);
+            DateTime time = DateTime.UtcNow;
+            operation_logs log = new operation_logs
+            {
+                gaming_table_id = table._id,
+                performed_by = role + "_" + name,
+                operation_timestamp = time,
+                details = "Update gaming table" + " " + table.table_number.ToString()
+            };
+            if (status.Equals("enable", StringComparison.OrdinalIgnoreCase))
+            {
+                log.operation_type = "enable";
+                await _service.UpdateTableStatus(id, status);
+                await _Logservice.WriteLog(log);
+            }
+            else if (status.Equals("disable", StringComparison.OrdinalIgnoreCase))
+            {
+                log.operation_type = "disable";
+                await _service.UpdateTableStatus(id, status);
+                await _Logservice.WriteLog(log);
+            }
+        }
         [HttpDelete("/api/gaming-tables/{id:length(24)}")]
-        public async Task DeleteTable(string id) => await _service.DeleteTable(id);
+        public async Task DeleteTable(string id,string role,string name)
+        {
+            var table = await _service.GetTable(id);
+            DateTime time = DateTime.UtcNow;
+            operation_logs log = new operation_logs
+            {
+                gaming_table_id = table._id,
+                operation_type = "Delete",
+                performed_by = role + "_" + name,
+                operation_timestamp = time,
+                details = "Delete Gaming table" + " " + table.table_number.ToString()
+            };
+            await _Logservice.WriteLog(log);
+            await _service.DeleteTable(id);
+        }
     }
 }

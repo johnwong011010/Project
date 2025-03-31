@@ -33,7 +33,7 @@ namespace Project.Controllers
             z.updated_at = DateTime.UtcNow;
             await _service.UpdateZone(id, z);
         }
-        [HttpDelete("/api/[controller]/{id:length(24)}")]
-        public async Task DeleteZone(string id) => await _service.DeleteZone(id);
+        [HttpPut("/api/[controller]/zone/{id:length(24)}")]
+        public async Task DeleteZone(string id) => await _service.DeleteZone(id, "isDeleted");
     }
 }

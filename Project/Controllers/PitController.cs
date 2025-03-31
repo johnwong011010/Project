@@ -31,7 +31,7 @@ namespace Project.Controllers
             p.updated_at = DateTime.UtcNow;
             await _service.UpdatePit(id, p);
         }
-        [HttpDelete("/api/[controller]/{id:length(24)}")]
-        public async Task DeletePit(string id) => await _service.DeletePit(id);
+        [HttpPut("/api/[controller]/pit/{id:length(24)}")]
+        public async Task DeletePit(string id) => await _service.DeletePit(id,"isDeleted");
     }
 }

@@ -18,6 +18,11 @@ namespace Project.Service
         public async Task<List<Area>> GetAreaByCompanyID(string cid) => await _service.Find(x => x.sub_company_id == cid).ToListAsync();//may have many area in this company
         public async Task<Area> GetAreaByName(string name) => await _service.Find(x => x.name == name).FirstOrDefaultAsync();
         public async Task UpdateArea(string id, Area a) => await _service.ReplaceOneAsync(x => x._id == id, a);
-        public async Task DeleteArea(string id) => await _service.DeleteOneAsync(x => x._id == id);
+        public async Task DeleteArea(string id, string isDelete)//markdown this area is delete already
+        {
+            var area = await _service.Find(x => x._id == id).FirstOrDefaultAsync();
+            area.isDeleted = isDelete;
+            await _service.ReplaceOneAsync(x => x._id == id, area);
+        }
     }
 }

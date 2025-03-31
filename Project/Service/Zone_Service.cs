@@ -18,6 +18,11 @@ namespace Project.Service
         public async Task<List<Zone>> GetZoneByName(string name) => await _service.Find(x => x.name == name).ToListAsync();
         public async Task<Zone> GetZoneByID(string id) => await _service.Find(x => x._id == id).FirstOrDefaultAsync();//expect id is only
         public async Task UpdateZone(string id, Zone z) => await _service.ReplaceOneAsync(x => x._id == id, z);
-        public async Task DeleteZone(string id) => await _service.DeleteOneAsync(x => x._id == id);
+        public async Task DeleteZone(string id,string isDelete)
+        {
+            var zone = await _service.Find(x => x._id == id).FirstOrDefaultAsync();
+            zone.isDeleted = isDelete;
+            await _service.ReplaceOneAsync(x => x._id == id, zone);
+        }
     }
 }
