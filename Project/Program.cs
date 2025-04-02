@@ -39,6 +39,11 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
+builder.Services.AddCors(option =>
+{
+    option.AddPolicy("ReactAppPolicy", builder => builder.WithOrigins("https://localhost:56097").AllowAnyMethod().AllowAnyHeader());
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -49,8 +54,7 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 //添加認證及授權中間件
-app.UseAuthentication();
-app.UseAuthorization();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -60,8 +64,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("ReactAppPolicy");
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

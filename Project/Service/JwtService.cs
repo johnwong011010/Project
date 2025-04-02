@@ -27,19 +27,19 @@ namespace Project.Service
             _configuartion = configuartion;
             _repository = repository;
         }
-        public async Task<EmployeeLoginModel> EmployeeLogin(EmployeeLoginModel model)
+        public async Task<EmployeeLoginModel> EmployeeLogin(string account,string password)
         {
-            var employee = await _service.Find(x => x.Account == model.Account).FirstOrDefaultAsync();
-            EmployeeLoginModel result = new EmployeeLoginModel { Account = model.Account, Password = model.Password};
+            var employee = await _service.Find(x => x.Account == account).FirstOrDefaultAsync();
+            EmployeeLoginModel result = new EmployeeLoginModel { Account = account, Password = account};
             if (employee is null)
             {
                 result.Detail = "Employee not found";
                 return result;
             }
-            bool checkPassword = BCrypt.Net.BCrypt.Verify(model.Password, employee.Password);
+            bool checkPassword = BCrypt.Net.BCrypt.Verify(password, employee.Password);
             if (checkPassword)
             {
-                var refrehtoken = GenerateRefreshToken(model.Account, model.Ipaddress);
+                var refrehtoken = GenerateRefreshToken(account);
                 employee.refreshToken = refrehtoken;
                 await _service.ReplaceOneAsync(x => x._id == employee._id, employee);//store the refresh token
                 result.Detail = "Login success";
@@ -77,7 +77,7 @@ namespace Project.Service
             var accestoken = new JwtSecurityTokenHandler().WriteToken(token);
             return accestoken;//該Token只是允許短時間訪問服務的token
         }
-        public RefreshToken GenerateRefreshToken(string useracc,string userIP)
+        public RefreshToken GenerateRefreshToken(string useracc)
         {
             var refreshToken = new RefreshToken
             {
@@ -85,7 +85,7 @@ namespace Project.Service
                 Token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(64)),
                 Expires = DateTime.UtcNow.AddDays(7),
                 Create = DateTime.UtcNow,
-                CreatedIP = userIP,
+                //CreatedIP = userIP,
                 UserAcc = useracc
             };
             return refreshToken;
@@ -107,7 +107,7 @@ namespace Project.Service
             var emp = await _service.Find(x => x.Name == principal.FindFirstValue(ClaimTypes.Name) && 
             x.Role == principal.FindFirstValue(ClaimTypes.Role)).FirstOrDefaultAsync();
             var newToken = GenerateToken(emp);
-            var newRefreshToken = GenerateRefreshToken(useracc, ipaddress);
+            var newRefreshToken = GenerateRefreshToken(useracc);
             await _repository.Update(emp._id,storedRefreshToken);
             await _repository.Add(emp._id,newRefreshToken);
             return new AuthResponse

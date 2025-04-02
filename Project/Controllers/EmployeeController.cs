@@ -3,11 +3,13 @@ using Microsoft.IdentityModel.Tokens;
 using Project.Model;
 using Project.Service;
 using BCrypt.Net;
+using Microsoft.AspNetCore.Cors;
 
 namespace Project.Controllers
 {
     [ApiController]
     [Route("/api/[controller]")]
+    [EnableCors("ReactAppPolicy")]
     public class EmployeeController : Controller
     {
         private readonly EmployeeService _service;
@@ -31,10 +33,17 @@ namespace Project.Controllers
         }
         [HttpPut("/api/[controller]/{id:length(24)}/status")]//change the employee status etc. active inactive
         public async Task ChnageEmployeeStatus(string id, string status) => await _service.ChangeEmployeeStatus(id, status);
-        [HttpPost("/api/[controller]/login")]
-        public async Task<ActionResult<EmployeeLoginModel>> Login(EmployeeLoginModel loginModel)
+        /*[HttpOptions("/api/[controller]/login")]
+        [EnableCors("ReactAppPolicy")]
+        public ActionResult Login()
         {
-            var result = await _jwtService.EmployeeLogin(loginModel);
+            return Ok();
+        }*/
+        [HttpPost("/api/[controller]/login")]
+        [EnableCors("ReactAppPolicy")]
+        public async Task<ActionResult<EmployeeLoginModel>> Login([FromBody] EmployeeLoginModel employee)
+        {
+            var result = await _jwtService.EmployeeLogin(employee.Account,employee.Password);
             Response.Headers.Add("Authorization", "Bearer "+ result.Token);
             return Ok(result);
         }

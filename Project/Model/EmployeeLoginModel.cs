@@ -8,7 +8,7 @@ namespace Project.Model
         public string? Account { get; set; }
         [Required]
         public string? Password { get; set; }
-        public string? Ipaddress { get; set; }
+        //public string? Ipaddress { get; set; }
         public string? Detail { get; set; }
         public string? Token { get; set; }
         public RefreshToken? RefreshToken { get; set; }
