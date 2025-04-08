@@ -7,21 +7,25 @@ namespace Project.Model
     {
         [BsonId]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? _id { get; set; }
+        public string? _id { get; set; } //no change
         [Required]
-        public string? Employee_Id { get; set; }
+        public string? Employee_Id { get; set; } //no change
         [Required]
-        public string? Account { get; set; }
+        public string? Account { get; set; } //no change
         [Required]
-        public string? Password { get; set; }
+        public string? Password { get; set; } //maybe
         [Required]
-        public string? Name { get; set; }
+        public string? Name { get; set; } //no change
         [Required]
-        public string? Role { get; set; }
+        public string? Role { get; set; } //always
         [Required]
-        public string? Permission { get; set; }
+        public DateTime? Join_in { get; set; } //few change
         [Required]
-        public string? Status { get; set; }
-        public RefreshToken? refreshToken { get; set; }
+        public DateTime? Quit_in { get; set; } //few change
+        [Required]
+        public string? Permission { get; set; } //not always
+        [Required]
+        public string? Status { get; set; } //few change
+        public RefreshToken? refreshToken { get; set; } //not allow to change
     }
 }

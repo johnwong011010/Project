@@ -41,7 +41,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 
 builder.Services.AddCors(option =>
 {
-    option.AddPolicy("ReactAppPolicy", builder => builder.WithOrigins("https://localhost:56097").AllowAnyMethod().AllowAnyHeader());
+    option.AddPolicy("ReactAppPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin());
 });
 
 // Add services to the container.

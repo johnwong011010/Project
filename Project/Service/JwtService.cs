@@ -1,4 +1,5 @@
 ﻿using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Mvc;
 using Project.Model;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -30,18 +31,20 @@ namespace Project.Service
         public async Task<EmployeeLoginModel> EmployeeLogin(string account,string password)
         {
             var employee = await _service.Find(x => x.Account == account).FirstOrDefaultAsync();
-            EmployeeLoginModel result = new EmployeeLoginModel { Account = account, Password = account};
+            EmployeeLoginModel? result = new EmployeeLoginModel { Account = account, Password = password };
             if (employee is null)
             {
                 result.Detail = "Employee not found";
                 return result;
             }
             bool checkPassword = BCrypt.Net.BCrypt.Verify(password, employee.Password);
-            if (checkPassword)
+            if (checkPassword) //longin success
             {
                 var refrehtoken = GenerateRefreshToken(account);
                 employee.refreshToken = refrehtoken;
                 await _service.ReplaceOneAsync(x => x._id == employee._id, employee);//store the refresh token
+                result.Role = employee.Role;
+                result.Name = employee.Name;
                 result.Detail = "Login success";
                 result.Token = GenerateToken(employee);
                 result.RefreshToken = refrehtoken;

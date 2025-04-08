@@ -9,7 +9,10 @@ namespace Project.Model
         [Required]
         public string? Password { get; set; }
         //public string? Ipaddress { get; set; }
+        public bool? autoLogin { get; set; }
         public string? Detail { get; set; }
+        public string? Role { get; set; }
+        public string? Name { get; set; }
         public string? Token { get; set; }
         public RefreshToken? RefreshToken { get; set; }
     }

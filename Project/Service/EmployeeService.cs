@@ -14,6 +14,7 @@ namespace Project.Service
         }
         public async Task<List<Employee>> GetAllEmployee() => await _service.Find(_ => true).ToListAsync();
         public async Task<Employee> GetEmployeeByRole(string role, string name) => await _service.Find(x => x.Role == role && x.Name == name).FirstOrDefaultAsync();
+        public async Task<Employee> GetEmployeeByEid(string eid) => await _service.Find(x => x.Employee_Id == eid).FirstOrDefaultAsync();
         public async Task AddEmployee(Employee emp) => await _service.InsertOneAsync(emp);
         public async Task Update(string id,string role,string permission)//permission change still need to think
         {

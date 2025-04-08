@@ -4,6 +4,10 @@ using Project.Model;
 using Project.Service;
 using BCrypt.Net;
 using Microsoft.AspNetCore.Cors;
+using MongoDB.Bson;
+using MongoDB.Driver;
+using System.Text.Json.Nodes;
+using System.Text.Json;
 
 namespace Project.Controllers
 {
@@ -22,9 +26,52 @@ namespace Project.Controllers
         }
         [HttpGet]
 
-        public async Task<List<Employee>> GetAllEmployee() => await _service.GetAllEmployee();
+        public async Task<EmployeeDTO[]> GetAllEmployee()
+        {
+            var alldata = await _service.GetAllEmployee();
+            EmployeeDTO[] data= new EmployeeDTO[alldata.Count()];
+            for (int i = 0; i < alldata.Count(); i++)
+            {
+                data[i] = new EmployeeDTO
+                {
+                    _id = alldata[i]._id,
+                    Employee_Id = alldata[i].Employee_Id,
+                    Account = alldata[i].Account,
+                    Name = alldata[i].Name,
+                    Role = alldata[i].Role,
+                    //Join_in = alldata[i].Join_in,
+                    //Quit_in = alldata[i].Quit_in,
+                    Permission = alldata[i].Permission,
+                    Status = alldata[i].Status,
+                };
+            }
+            return data;
+        }
         [HttpGet("/api/[controller]/employee")]
         public async Task<Employee> GetEmployee(string role, string name) => await _service.GetEmployeeByRole(role, name);
+        [HttpGet("/api/[controller]/eid")]
+        public async Task<ActionResult<EmployeeDTO?>> GetEmployee(string eid)
+        {
+            var employee = await _service.GetEmployeeByEid(eid);
+            if (employee != null)
+            {
+                EmployeeDTO data = new EmployeeDTO
+                {
+                    _id = employee._id,
+                    Employee_Id = employee.Employee_Id,
+                    Account = employee.Account,
+                    Name = employee.Name,
+                    Role = employee.Role,
+                    Permission = employee.Permission,
+                    Status = employee.Status,
+                };
+                return Ok(data);
+            }
+            else
+            {
+                return NotFound();
+            }
+        }
         [HttpPost("/api/[controller]/employee")]
         public async Task AddEmployee(Employee emp)
         {
@@ -41,10 +88,18 @@ namespace Project.Controllers
         }*/
         [HttpPost("/api/[controller]/login")]
         [EnableCors("ReactAppPolicy")]
-        public async Task<ActionResult<EmployeeLoginModel>> Login([FromBody] EmployeeLoginModel employee)
+        public async Task<ActionResult<EmployeeLoginModel?>> Login([FromBody] EmployeeLoginModel employee)
         {
             var result = await _jwtService.EmployeeLogin(employee.Account,employee.Password);
-            Response.Headers.Add("Authorization", "Bearer "+ result.Token);
+            if (result.Detail == "Employee not found")
+            {
+                return NotFound(result);
+            }
+            if (result.Detail == "Invalid Password")
+            {
+                return Unauthorized(result);
+            }
+            Response.Headers.Add("Authorization", "Bearer "+ result);
             return Ok(result);
         }
         [HttpPost("/api/[controller]/refresh")]
