@@ -78,8 +78,12 @@ namespace Project.Controllers
             emp.Password = BCrypt.Net.BCrypt.HashPassword(emp.Password, workFactor: 12);;
             await _service.AddEmployee(emp);
         }
-        [HttpPut("/api/[controller]/{id}/status")]//change the employee status etc. active inactive
-        public async Task ChnageEmployeeStatus(string id, string status) => await _service.ChangeEmployeeStatus(id, status);
+        [HttpPatch("/api/[controller]/{id}/status")]//change the employee status etc. active inactive
+        public async Task<ActionResult> ChnageEmployeeStatus(string id, string status)
+        {
+            await _service.ChangeEmployeeStatus(id, status);
+            return Ok();
+        }
         [HttpPatch("/api/[controller]/{eid}/role")]//change employee role
         public async Task<ActionResult> ChangeEmployeeRole(string eid,string role)
         {
