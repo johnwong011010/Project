@@ -22,6 +22,7 @@ builder.Services.Configure<sub_companiesDB>(builder.Configuration.GetSection("Su
 builder.Services.AddSingleton<Sub_Company_Service>();
 builder.Services.Configure<ZoneDB>(builder.Configuration.GetSection("ZoneDatabase"));
 builder.Services.AddSingleton<Zone_Service>();
+builder.Services.Configure<PermissionDB>(builder.Configuration.GetSection("PermissionDatabase"));//動態監視permission的DB設定
 var jwtsetting = builder.Configuration.GetSection("Jwt");//get Jwt setting
 
 //set up the authentication is using json web token
@@ -38,7 +39,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))//turn both public and private key to utf8 encoding format
     };
 });
-
+//允許跨域訪問資源設定
 builder.Services.AddCors(option =>
 {
     option.AddPolicy("ReactAppPolicy", builder => builder.AllowAnyMethod().AllowAnyHeader().AllowAnyOrigin());
@@ -64,6 +65,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+//允許跨域訪問資源
 app.UseCors("ReactAppPolicy");
 app.UseHttpsRedirection();
 

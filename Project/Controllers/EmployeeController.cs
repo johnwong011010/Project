@@ -8,6 +8,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System.Text.Json.Nodes;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 
 namespace Project.Controllers
 {
@@ -53,6 +54,21 @@ namespace Project.Controllers
         public async Task<ActionResult<EmployeeDTO?>> GetEmployee(string eid)
         {
             var employee = await _service.GetEmployeeByEid(eid);
+            var permit = GetPermission().Result;
+            string[] keys = permit.Keys.ToArray(); //將權限的代表數字取出 
+            string ep = "";//格式化的權限
+            foreach(string key in keys)
+            {
+                if (employee.Permission.Contains(key))
+                {
+                    ep += permit.GetValueOrDefault(key);
+                    ep += "_";
+                }
+            }
+            if (ep.EndsWith("_"))
+            {
+                ep = ep.Remove(ep.Length - 1);//檢查是否到最後,不是到最後也要加底線做區分
+            }
             if (employee != null)
             {
                 EmployeeDTO data = new EmployeeDTO
@@ -62,7 +78,7 @@ namespace Project.Controllers
                     Account = employee.Account,
                     Name = employee.Name,
                     Role = employee.Role,
-                    Permission = employee.Permission,
+                    Permission = ep,
                     Status = employee.Status,
                 };
                 return Ok(data);
@@ -71,6 +87,12 @@ namespace Project.Controllers
             {
                 return NotFound();
             }
+        }
+        [HttpGet("/api/[controller]/permission")]
+        private async Task<Dictionary<string,string>> GetPermission()
+        {
+            var result = await _service.GetPermission();
+            return result;
         }
         [HttpPost("/api/[controller]/employee")]
         public async Task AddEmployee(Employee emp)
@@ -88,8 +110,25 @@ namespace Project.Controllers
         public async Task<ActionResult> ChangeEmployeeRole(string eid,string role)
         {
             var employee = await _service.GetEmployeeByEid(eid);
-            employee.Role = role;
             await _service.Update(eid, role, employee.Permission);
+            return Ok();
+        }
+        [HttpPatch("/api/[controller]/{eid}/permit")]//change employee role
+        public async Task<ActionResult> ChangeEmployeePermission(string eid, string permission)
+        {
+            var employee = await _service.GetEmployeeByEid(eid);
+            var permit = GetPermission().Result;
+            string p = "";
+            foreach(var per in permit)
+            {
+                if (permission.Contains(per.Value))
+                {
+                    p += per.Key;
+                    p += "_";
+                }
+            }
+            if (p.EndsWith("_")) p = p.Remove(p.Length - 1); // 移除不必要的底線
+            await _service.Update(eid, employee.Role, p);
             return Ok();
         }
         /*[HttpOptions("/api/[controller]/login")]
