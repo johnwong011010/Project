@@ -16,10 +16,8 @@ namespace Project.Model
         public string? Name { get; set; }
         [Required]
         public string? Role { get; set; }
-        /*[Required]
         public DateTime? Join_in { get; set; }
-        [Required]
-        public DateTime? Quit_in { get; set; }*/
+        public DateTime? Quit_in { get; set; }
         [Required]
         public string? Permission { get; set; }
         [Required]

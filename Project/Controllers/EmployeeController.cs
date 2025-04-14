@@ -9,6 +9,7 @@ using MongoDB.Driver;
 using System.Text.Json.Nodes;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using System.Security;
 
 namespace Project.Controllers
 {
@@ -40,8 +41,8 @@ namespace Project.Controllers
                     Account = alldata[i].Account,
                     Name = alldata[i].Name,
                     Role = alldata[i].Role,
-                    //Join_in = alldata[i].Join_in,
-                    //Quit_in = alldata[i].Quit_in,
+                    Join_in = alldata[i].Join_in,
+                    Quit_in = alldata[i].Quit_in,
                     Permission = alldata[i].Permission,
                     Status = alldata[i].Status,
                 };
@@ -79,6 +80,8 @@ namespace Project.Controllers
                     Name = employee.Name,
                     Role = employee.Role,
                     Permission = ep,
+                    Join_in = employee.Join_in,
+                    Quit_in = employee.Quit_in,
                     Status = employee.Status,
                 };
                 return Ok(data);
@@ -95,10 +98,24 @@ namespace Project.Controllers
             return result;
         }
         [HttpPost("/api/[controller]/employee")]
-        public async Task AddEmployee(Employee emp)
+        public async Task<ActionResult> AddEmployee(Employee emp)
         {
             emp.Password = BCrypt.Net.BCrypt.HashPassword(emp.Password, workFactor: 12);;
+            emp.Quit_in = DateTime.Now;
+            var permit = GetPermission().Result;
+            string p = "";
+            foreach (var per in permit)
+            {
+                if (emp.Permission.ToLower().Contains(per.Value)) //因為UI側的第一個英文字母為大寫，因此轉換成小寫再對比
+                {
+                    p += per.Key;
+                    p += "_";
+                }
+            }
+            if (p.EndsWith("_")) p = p.Remove(p.Length - 1);
+            emp.Permission = p;
             await _service.AddEmployee(emp);
+            return Ok();
         }
         [HttpPatch("/api/[controller]/{id}/status")]//change the employee status etc. active inactive
         public async Task<ActionResult> ChnageEmployeeStatus(string id, string status)

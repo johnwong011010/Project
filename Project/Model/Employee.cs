@@ -19,8 +19,11 @@ namespace Project.Model
         [Required]
         public string? Role { get; set; } //always
         [Required]
-        public DateTime? Join_in { get; set; } //few change
+        public string? Phone { get; set; }
+        public string? Email { get; set; }
+        public string? Address { get; set; }
         [Required]
+        public DateTime? Join_in { get; set; } //few change
         public DateTime? Quit_in { get; set; } //few change
         [Required]
         public string? Permission { get; set; } //not always

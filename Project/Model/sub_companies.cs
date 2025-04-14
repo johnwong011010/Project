@@ -15,7 +15,6 @@ namespace Project.Model
         [DisplayName("Description")]
         public string? description { get; set; }
         [DisplayName("Creat Time")]
-        [Required]
         public DateTime? created_at { get; set; }
         [DisplayName("Update Time")]
         public DateTime? updated_at { get; set; }
