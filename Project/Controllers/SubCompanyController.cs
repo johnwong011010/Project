@@ -58,5 +58,34 @@ namespace Project.Controllers
             await _service.UpdateCompany(company_id, company);
             return Ok();
         }
+        [HttpGet("/api/[controller]/SelectCompany")]
+        public async Task<ActionResult> GetCompanyAsSelect()
+        {
+            try
+            {
+                var result = await _service.GetAllCompany();
+                SelectItem[] company = new SelectItem[result.Count];
+                for (int i = 0; i < result.Count; i++)
+                {
+                    company[i] = new SelectItem
+                    {
+                        _id = result[i]._id,
+                        name = result[i].name,
+                    };
+                }
+                if (company != null)
+                {
+                    return Ok(company);
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            catch(Exception E)
+            {
+                return NotFound(E);
+            }
+        }
     }
 }

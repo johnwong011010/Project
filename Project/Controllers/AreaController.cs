@@ -44,12 +44,13 @@ namespace Project.Controllers
             }
         }
         [HttpPost("/api/Area")]
-        public async Task<ActionResult> AddArea(string name,string description)
+        public async Task<ActionResult> AddArea(string name,string description,string sub_company_id)
         {
             Area newArea = new Area
             {
                 name = name,
                 description = description,
+                sub_company_id = sub_company_id,
                 created_at = DateTime.UtcNow,
                 updated_at = DateTime.UtcNow,
             };
@@ -68,6 +69,25 @@ namespace Project.Controllers
             return Ok();
         }
         [HttpPut("/api/Area/area/{id:length(24)}")]
-        public async Task DeleteArea(string id) => await _service.DeleteArea(id,"isDeleted");
+        public async Task<ActionResult> DeleteArea(string id)
+        {
+            await _service.DeleteArea(id, "isDeleted");
+            return NoContent();
+        }
+        [HttpGet("/api/[controller]/item")]
+        public async Task<ActionResult> GetAreaAsItem()
+        {
+            var result = await _service.GetAllArea();
+            SelectItem[] item = new SelectItem[result.Count];
+            for (int i = 0; i < result.Count; i++)
+            {
+                item[i] = new SelectItem
+                {
+                    _id = result[i]._id,
+                    name = result[i].name
+                };
+            }
+            return Ok(item);
+        }
     }
 }
