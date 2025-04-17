@@ -15,6 +15,7 @@ namespace Project.Service
         public async Task AddPit(Pit p) => await _service.InsertOneAsync(p);
         public async Task<List<Pit>> GetAllPit() => await _service.Find(_ => true).ToListAsync();
         public async Task<List<Pit>> GetPitByZone(string zid) => await _service.Find(x => x.zone_id == zid).ToListAsync();
+        public async Task<List<Pit>> GetPitByName(string name) => await _service.Find(x => x.name == name).ToListAsync();
         public async Task<Pit> GetPitByID(string id) => await _service.Find(x => x._id == id).FirstOrDefaultAsync();
         public async Task UpdatePit(string id, Pit p) => await _service.ReplaceOneAsync(x => x._id == id, p);
         public async Task DeletePit(string id,string isDelete)

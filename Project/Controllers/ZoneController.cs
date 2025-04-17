@@ -35,13 +35,13 @@ namespace Project.Controllers
         }
         [HttpGet("api/[controller]/{id:length(24)}")]
         public async Task<Zone> GetSinZone(string id) => await _service.GetZoneByID(id);
-        [HttpPost("api/[controller]/")]
-        public async Task<ActionResult> AddZone(string name,string decsription,string area_id)
+        [HttpPost]
+        public async Task<ActionResult> AddZone(string name,string description,string area_id)
         {
             Zone newZone = new Zone
             {
                 name = name,
-                description = decsription,
+                description = description,
                 area_id = area_id,
                 created_at = DateTime.Now,
                 updated_at = DateTime.Now,
@@ -50,14 +50,32 @@ namespace Project.Controllers
             return Ok();
         }
         [HttpPut("/api/[controller]/{id:length(24)}")]
-        public async Task UpdateZone(string id,Zone z)
+        public async Task<ActionResult> UpdateZone(string id,string name,string description,string area_id)
         {
             var zone = await _service.GetZoneByID(id);
-            z.created_at = zone.created_at;
-            z.updated_at = DateTime.UtcNow;
-            await _service.UpdateZone(id, z);
+            zone.name = name;
+            zone.area_id = area_id;
+            zone.description = description;
+            zone.updated_at = DateTime.UtcNow;
+            await _service.UpdateZone(id, zone);
+            return Ok();
         }
         [HttpPut("/api/[controller]/zone/{id:length(24)}")]
         public async Task DeleteZone(string id) => await _service.DeleteZone(id, "isDeleted");
+        [HttpGet("/api/[controller]/zone/item")]
+        public async Task<ActionResult> GetZoneAsItem()
+        {
+            var items = await _service.GetAllZone();
+            SelectItem[] result = new SelectItem[items.Count];
+            for (int i = 0; i < items.Count; i++)
+            {
+                result[i] = new SelectItem
+                {
+                    _id = items[i]._id,
+                    name = items[i].name
+                };
+            }
+            return Ok(result);
+        }
     }
 }

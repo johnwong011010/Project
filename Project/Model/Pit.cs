@@ -15,7 +15,6 @@ namespace Project.Model
         [BsonRepresentation(BsonType.ObjectId)]
         public string? zone_id { get; set; }
         [DisplayName("Name")]
-        [Required]
         public string? name { get; set; }
         [DisplayName("Description")]
         public string? description { get; set; }
