@@ -13,6 +13,8 @@ builder.Services.AddSingleton<EmployeeService>();
 builder.Services.AddSingleton<JwtService>();
 builder.Services.AddSingleton<IRefreshTokenRepository, RefreshTokenRepositoryClass>();
 builder.Services.Configure<Gaming_TablesDB>(builder.Configuration.GetSection("GamingTableDatabase"));
+builder.Services.Configure<ChipTypeDb>(builder.Configuration.GetSection("Chips_type"));
+builder.Services.Configure<denominationDB>(builder.Configuration.GetSection("Denominations"));
 builder.Services.AddSingleton<Gaming_Tables_Service>();
 builder.Services.Configure<operationDB>(builder.Configuration.GetSection("OperationDatabase"));
 builder.Services.AddSingleton<OperationLogService>();

@@ -92,7 +92,7 @@ namespace Project.Controllers
             }
         }
         [HttpGet("/api/[controller]/permission")]
-        private async Task<Dictionary<string,string>> GetPermission()
+        public async Task<Dictionary<string,string>> GetPermission()
         {
             var result = await _service.GetPermission();
             return result;
