@@ -12,7 +12,7 @@ namespace Project.Model
         [DisplayName("Pit ID")]
         [BsonElement("pit_id")]
         [BsonRepresentation(BsonType.ObjectId)]
-        public string? Pit_id { get; set; }
+        public string? pit_id { get; set; }
         [DisplayName("Sub company ID")]
         [BsonElement("sub_company_id")]
         [BsonRepresentation(BsonType.ObjectId)]
