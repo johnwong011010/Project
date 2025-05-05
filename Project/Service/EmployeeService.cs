@@ -2,6 +2,7 @@
 using MongoDB.Bson;
 using MongoDB.Driver;
 using Project.Model;
+using System.Linq;
 namespace Project.Service
 {
     public class EmployeeService
@@ -26,6 +27,13 @@ namespace Project.Service
             var result =  await _pservice.Find(bsonFilter).FirstOrDefaultAsync();
             if (result is null) return null;
             return result.Elements.Where(e => e.Name != "_id").ToDictionary(e => e.Name, e => e.Value.AsString);
+        }
+        public async Task<List<BsonValue>> GetPermit()
+        {
+            var bsonFilter = Builders<BsonDocument>.Filter.Eq("_id", new ObjectId("67f5f3ca04ad5ae416598e43"));
+            var result = await _pservice.Find(bsonFilter).FirstOrDefaultAsync();
+            if (result is null) return null;
+            return result.Elements.Where(e => e.Name != "_id").Select(e => e.Value).ToList();
         }
         public async Task AddEmployee(Employee emp) => await _service.InsertOneAsync(emp);
         public async Task Update(string id,string role,string permission)//permission change still need to think

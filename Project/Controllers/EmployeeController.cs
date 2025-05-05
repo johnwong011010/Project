@@ -50,7 +50,27 @@ namespace Project.Controllers
             return data;
         }
         [HttpGet("/api/[controller]/employee")]
-        public async Task<Employee> GetEmployee(string role, string name) => await _service.GetEmployeeByRole(role, name);
+        public async Task<ActionResult<Employee>> GetEmployee(string role, string name)
+        {
+            var emp = await _service.GetEmployeeByRole(role, name);
+            var permit = GetPermission().Result;//return a array of permission
+            string[] keys = permit.Keys.ToArray();
+            string ep = "";//格式化的權限
+            foreach (string key in keys)
+            {
+                if (emp.Permission.Contains(key))
+                {
+                    ep += permit.GetValueOrDefault(key);
+                    ep += "_";
+                }
+            }
+            if (ep.EndsWith("_"))
+            {
+                ep = ep.Remove(ep.Length - 1);//檢查是否到最後,不是到最後也要加底線做區分
+            }
+            emp.Permission = ep;
+            return Ok(emp);
+        }
         [HttpGet("/api/[controller]/eid")]
         public async Task<ActionResult<EmployeeDTO?>> GetEmployee(string eid)
         {
@@ -92,10 +112,16 @@ namespace Project.Controllers
             }
         }
         [HttpGet("/api/[controller]/permission")]
-        public async Task<Dictionary<string,string>> GetPermission()
+        private async Task<Dictionary<string,string>> GetPermission()
         {
             var result = await _service.GetPermission();
             return result;
+        }
+        [HttpGet("/api/[controller]/permit")]
+        public async Task<ActionResult> GetPermit()
+        {
+            var result = await _service.GetPermit();
+            return Ok(result.ToJson());
         }
         [HttpPost("/api/[controller]/employee")]
         public async Task<ActionResult> AddEmployee(Employee emp)

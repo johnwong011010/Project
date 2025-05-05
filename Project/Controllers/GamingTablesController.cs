@@ -148,15 +148,21 @@ namespace Project.Controllers
                 operation_timestamp = time,
                 details = "Update gaming table" + " " + table.table_number.ToString()
             };
-            if (status.Equals("enable", StringComparison.OrdinalIgnoreCase))
+            if (status.Equals("active", StringComparison.OrdinalIgnoreCase))
             {
                 log.operation_type = "enable";
                 await _service.UpdateTableStatus(id, status);
                 await _Logservice.WriteLog(log);
             }
-            else if (status.Equals("disable", StringComparison.OrdinalIgnoreCase))
+            else if (status.Equals("inactive", StringComparison.OrdinalIgnoreCase))
             {
                 log.operation_type = "disable";
+                await _service.UpdateTableStatus(id, status);
+                await _Logservice.WriteLog(log);
+            }
+            else
+            {
+                log.operation_type = "maintaince";
                 await _service.UpdateTableStatus(id, status);
                 await _Logservice.WriteLog(log);
             }

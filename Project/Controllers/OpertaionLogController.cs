@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Project.Model;
 using Project.Service;
+using System.Text.Json;
 
 namespace Project.Controllers
 {
@@ -11,7 +12,19 @@ namespace Project.Controllers
         private readonly OperationLogService _service;
         public OpertaionLogController(OperationLogService service) => _service = service;
         [HttpGet]
-        public async Task<List<operation_logs>> GetAllLogs() => await _service.GetAllLogs();
+        public async Task<ActionResult> GetAllLogs(string? current,int pageSize)
+        {
+            var logs = await _service.GetAllLogs();
+            var json = new
+            {
+                data = logs,
+                current = current,
+                pagesize = pageSize,
+                total = logs.Count
+            };
+            string jsonItem = JsonSerializer.Serialize(json);
+            return Ok(jsonItem);
+        }
         [HttpGet("/api/[controller]/{tid:length(24)}")]
         public async Task<List<operation_logs>> GetTableLogs(string tid) => await _service.GetTableAllLogs(tid);
         [HttpGet("/api/[controller]/user")]
