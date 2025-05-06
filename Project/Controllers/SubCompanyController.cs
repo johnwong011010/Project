@@ -26,6 +26,10 @@ namespace Project.Controllers
             else
             {
                 var result = await _service.GetCompanyByName(name);
+                if (result is null)
+                {
+                    return NotFound();
+                }
                 sub_companies[] companies = new sub_companies[] { result }; //需要將取得的單筆資料強制轉換成array或者list再回傳
                 return Ok(companies);
             }

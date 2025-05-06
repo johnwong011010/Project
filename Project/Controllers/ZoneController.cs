@@ -21,6 +21,10 @@ namespace Project.Controllers
             else
             {
                 var result = await _service.GetZoneByName(name);
+                if (result is null)
+                {
+                    return NotFound();
+                }
                 Zone[] zones = new Zone[] { result };
                 return Ok(result);
             }

@@ -21,6 +21,10 @@ namespace Project.Controllers
             else
             {
                 var result = await _service.GetPitByName(name);
+                if (result is null)
+                {
+                    return NotFound();
+                }
                 return Ok(result);
             }
         }
