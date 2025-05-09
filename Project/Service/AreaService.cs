@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Project.Model;
 namespace Project.Service
 {
@@ -16,7 +17,7 @@ namespace Project.Service
         public async Task<List<Area>> GetAllArea() => await _service.Find(_ => true).ToListAsync();
         public async Task<Area> GetAreaByID(string id) => await _service.Find(x => x._id == id).FirstOrDefaultAsync();
         public async Task<List<Area>> GetAreaByCompanyID(string cid) => await _service.Find(x => x.sub_company_id == cid).ToListAsync();//may have many area in this company
-        public async Task<Area> GetAreaByName(string name) => await _service.Find(x => x.name == name).FirstOrDefaultAsync();
+        public async Task<Area> GetAreaByName(string name) => await _service.AsQueryable().Where(x => x.name.ToLower().Contains(name)).FirstOrDefaultAsync();
         public async Task UpdateArea(string id, Area a) => await _service.ReplaceOneAsync(x => x._id == id, a);
         public async Task DeleteArea(string id, string isDelete)//markdown this area is delete already
         {

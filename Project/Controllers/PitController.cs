@@ -25,7 +25,8 @@ namespace Project.Controllers
                 {
                     return NotFound();
                 }
-                return Ok(result);
+                Pit[] p = new Pit[] { result };
+                return Ok(p);
             }
         }
         [HttpGet("/api/[controller]/{zid:length(24)}")]

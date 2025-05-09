@@ -26,7 +26,7 @@ namespace Project.Controllers
                     return NotFound();
                 }
                 Zone[] zones = new Zone[] { result };
-                return Ok(result);
+                return Ok(zones);
             }
         }
         [HttpGet("/api/[controller]/area")]

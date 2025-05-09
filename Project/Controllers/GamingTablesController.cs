@@ -1,9 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using Project.Model;
 using Project.Service;
 using System.Data;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 
@@ -21,9 +23,9 @@ namespace Project.Controllers
             _Logservice = logService;
         }
         [HttpGet]
-        public async Task<ActionResult> GetTable(string? current,string? pageSize,string? tbnum,string? gameType,string? status,string? min_bet,string? max_bet)
+        public async Task<ActionResult> GetTable(string? current, string? pageSize, string? table_number,string? game_type,string? status,string? min_bet,string? max_bet)
         {
-            var allParams = new[] { tbnum, gameType, status, min_bet, max_bet };
+            var allParams = new[] { table_number, game_type, status, min_bet, max_bet };
             var filterBuilder = Builders<Gaming_Tables>.Filter;// add search filter
             var filter = new List<FilterDefinition<Gaming_Tables>>(); //detail of filter
             if (current != null && pageSize != null & allParams.All(string.IsNullOrEmpty)) //沒有查詢參數就回傳所有資料
@@ -40,13 +42,25 @@ namespace Project.Controllers
                 string json = JsonSerializer.Serialize(jsonItem);
                 return Ok(json);
             }
-            if (!string.IsNullOrEmpty(tbnum))
+            if (!string.IsNullOrEmpty(table_number))
             {
-                filter.Add(filterBuilder.Eq(x => x.table_number, tbnum));
+                var escapedTbnum = Regex.Escape(table_number);
+                var regex = filterBuilder.Regex(
+                    field: "table_number",//point to field,notice that if you change to field name,this line also need to change to match up database field
+                    regex: new BsonRegularExpression(escapedTbnum, "i")
+                    );
+                filter.Add(regex);
+                //filter.Add(filterBuilder.Eq(x => x.table_number, tbnum));
             }
-            if (!string.IsNullOrEmpty(gameType))
+            if (!string.IsNullOrEmpty(game_type))
             {
-                filter.Add(filterBuilder.Eq(x => x.game_type, gameType));
+                //doing insensitive search by using BsonRegularExpression
+                var regex = filterBuilder.Regex(
+                    field: "game_type",//point to field,notice that if you change to field name,this line also need to change to match up database field
+                    regex: new BsonRegularExpression(game_type, "i")
+                    );
+                filter.Add(regex);
+                //filter.Add(filterBuilder.Eq(x => x.game_type, regex));
             }
             if (!string.IsNullOrEmpty(status))
             {

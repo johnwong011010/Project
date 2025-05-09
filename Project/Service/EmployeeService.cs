@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using Project.Model;
 using System.Linq;
 namespace Project.Service
@@ -19,6 +20,19 @@ namespace Project.Service
             _pservice = Pdbname.GetCollection<BsonDocument>(permissionMonitor.CurrentValue.CollectionName);
         }
         public async Task<List<Employee>> GetAllEmployee() => await _service.Find(_ => true).ToListAsync();
+        public async Task<List<Employee>> GetEmployeeByStatus(string status) => await _service.Find(x => x.Status == status).ToListAsync(); 
+        public async Task<Employee> GetEmployeeByName(string name)
+        {
+            var emp = await _service.AsQueryable().Where(x => x.Name.ToLower().Contains(name)).FirstOrDefaultAsync();
+            if (emp is null) return null;
+            return emp;
+        }
+        public async Task<Employee> GetEmployeesByFilter(string status, string name)
+        {
+            var emp = await _service.AsQueryable().Where(x => x.Status == status && x.Name.ToLower().Contains(name)).FirstOrDefaultAsync();//search employee
+            if (emp is null) return null;
+            return emp;
+        } 
         public async Task<Employee> GetEmployeeByRole(string role, string name) => await _service.Find(x => x.Role == role && x.Name == name).FirstOrDefaultAsync();
         public async Task<Employee> GetEmployeeByEid(string eid) => await _service.Find(x => x.Employee_Id == eid).FirstOrDefaultAsync();
         public async Task<Dictionary<string,string>> GetPermission()

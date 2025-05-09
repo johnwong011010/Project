@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Options;
 using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
 using MongoDB.Driver;
 using Project.Model;
 using System.Net.WebSockets;
@@ -34,7 +35,9 @@ namespace Project.Service
         public async Task<List<Gaming_Tables>> GetTableByPit(string pit_id) => await _service.Find(x => x.pit_id == pit_id).ToListAsync();
         public async Task<List<Gaming_Tables>> GetTableByCompanies(string sub_company_id) => await _service.Find(x => x.sub_company_id == sub_company_id).ToListAsync();
         public async Task<List<Gaming_Tables>> GetTableByStatus(string status) => await _service.Find(x => x.status == status).ToListAsync();
-        public async Task<List<Gaming_Tables>> GetTableByFilter(FilterDefinition<Gaming_Tables> filter) => await _service.Find(filter).ToListAsync();
+        public async Task<List<Gaming_Tables>> GetTableByFilter(FilterDefinition<Gaming_Tables> filter) {
+            return await _service.Find(filter).ToListAsync();
+        }
         public async Task UpdateTable(string id, Gaming_Tables t)
         {
             var table = await _service.Find(x => x._id == id).FirstOrDefaultAsync();

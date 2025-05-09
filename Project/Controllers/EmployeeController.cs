@@ -28,26 +28,95 @@ namespace Project.Controllers
         }
         [HttpGet]
 
-        public async Task<EmployeeDTO[]> GetAllEmployee()
+        public async Task<ActionResult<EmployeeDTO[]>> GetAllEmployee(int current,int pageSize,string? status,string? name)
         {
-            var alldata = await _service.GetAllEmployee();
-            EmployeeDTO[] data= new EmployeeDTO[alldata.Count()];
-            for (int i = 0; i < alldata.Count(); i++)
+            if (status == null && name == null || status == "all")
             {
-                data[i] = new EmployeeDTO
+                var alldata = await _service.GetAllEmployee();
+                EmployeeDTO[] data = new EmployeeDTO[alldata.Count()];
+                for (int i = 0; i < alldata.Count(); i++)
                 {
-                    _id = alldata[i]._id,
-                    Employee_Id = alldata[i].Employee_Id,
-                    Account = alldata[i].Account,
-                    Name = alldata[i].Name,
-                    Role = alldata[i].Role,
-                    Join_in = alldata[i].Join_in,
-                    Quit_in = alldata[i].Quit_in,
-                    Permission = alldata[i].Permission,
-                    Status = alldata[i].Status,
-                };
+                    data[i] = new EmployeeDTO
+                    {
+                        _id = alldata[i]._id,
+                        Employee_Id = alldata[i].Employee_Id,
+                        Account = alldata[i].Account,
+                        Name = alldata[i].Name,
+                        Role = alldata[i].Role,
+                        Join_in = alldata[i].Join_in,
+                        Quit_in = alldata[i].Quit_in,
+                        Permission = alldata[i].Permission,
+                        Status = alldata[i].Status,
+                    };
+                }
+                return Ok(data);
             }
-            return data;
+            if (name != null && status is null)
+            {
+                var emp = await _service.GetEmployeeByName(name);
+                if (emp is null) return NotFound();
+                EmployeeDTO dto = new EmployeeDTO //avoid unneccrecy data to put out
+                {
+                    _id = emp._id,
+                    Employee_Id = emp.Employee_Id,
+                    Account = emp.Account,
+                    Name = emp.Name,
+                    Role = emp.Role,
+                    Join_in = emp.Join_in,
+                    Quit_in = emp.Quit_in,
+                    Permission = emp.Permission,
+                    Status = emp.Status
+                };
+                EmployeeDTO[] array = new EmployeeDTO[]
+                {
+                    dto
+                };
+                return Ok(array);
+            }
+            if (status != null && name is null)
+            {
+                var emp = await _service.GetEmployeeByStatus(status);
+                EmployeeDTO[] data = new EmployeeDTO[emp.Count()];
+                for (int i = 0; i < emp.Count(); i++)
+                {
+                    data[i] = new EmployeeDTO
+                    {
+                        _id = emp[i]._id,
+                        Employee_Id = emp[i].Employee_Id,
+                        Account = emp[i].Account,
+                        Name = emp[i].Name,
+                        Role = emp[i].Role,
+                        Join_in = emp[i].Join_in,
+                        Quit_in = emp[i].Quit_in,
+                        Permission = emp[i].Permission,
+                        Status = emp[i].Status,
+                    };
+                }
+                return Ok(data);
+            }
+            if (status != null && name != null)
+            {
+                var emp = await _service.GetEmployeesByFilter(status, name);
+                if (emp is null) return NotFound();
+                EmployeeDTO dto = new EmployeeDTO //avoid unneccrecy data to put out
+                {
+                    _id = emp._id,
+                    Employee_Id = emp.Employee_Id,
+                    Account = emp.Account,
+                    Name = emp.Name,
+                    Role = emp.Role,
+                    Join_in = emp.Join_in,
+                    Quit_in = emp.Quit_in,
+                    Permission = emp.Permission,
+                    Status = emp.Status
+                };
+                EmployeeDTO[] array = new EmployeeDTO[]
+                {
+                    dto
+                };
+                return Ok(array);
+            }
+            return Ok();
         }
         [HttpGet("/api/[controller]/employee")]
         public async Task<ActionResult<Employee>> GetEmployee(string role, string name)
