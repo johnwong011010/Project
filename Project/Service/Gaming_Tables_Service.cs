@@ -102,6 +102,12 @@ namespace Project.Service
             }
             return items;
         }
+        public async Task<List<string>> GetTableName()
+        {
+            var fieldname = "table_number";
+            var response = await _service.Distinct<string>(fieldname, FilterDefinition<Gaming_Tables>.Empty).ToListAsync();
+            return response;
+        }
     }
     public class CheckBoxItem
     {

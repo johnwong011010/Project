@@ -209,5 +209,12 @@ namespace Project.Controllers
             var denomination = await _service.GetDenomination();
             return Ok(denomination);
         }
+        [HttpGet("/api/tableName")]
+        public async Task<ActionResult> GetAllTableName()
+        {
+            var name = await _service.GetTableName();
+            var result = JsonSerializer.Serialize(name);
+            return Ok(name);
+        }
     }
 }
